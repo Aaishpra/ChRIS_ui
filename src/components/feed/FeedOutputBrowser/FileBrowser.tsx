@@ -10,6 +10,10 @@ import {
   Grid,
   GridItem,
   Button,
+  Drawer,
+  DrawerPanelContent,
+  DrawerContentBody,
+  DrawerContent,
 } from "@patternfly/react-core";
 import {
   DownloadIcon,
@@ -26,7 +30,9 @@ import {
   Table,
   TableHeader,
   TableBody,
-  TableVariant,
+  cellWidth,
+  truncate,
+  TableText,
 } from "@patternfly/react-table";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { FileBrowserProps, FileBrowserState } from "./types";
@@ -133,9 +139,11 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const generateTableRow = (node: DataNode) => {
     let type = "UNKNOWN FORMAT";
+    let fileSize = "";
     if (node.children && node.children.length > 0) {
       type = "dir";
     } else {
+      fileSize = node.fileSize;
       const name = node.title;
       if (name.indexOf(".") > -1) {
         type = name.split(".").splice(-1)[0].toUpperCase();
@@ -143,6 +151,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
     const icon = getIcon(type);
     const isPreviewing = selectedFile && selectedFile.key === node.key;
+    const iconRow = {
+      title: icon,
+    };
     const fileName = (
       <div
         className={classNames(
@@ -150,18 +161,19 @@ const FileBrowser = (props: FileBrowserProps) => {
           isPreviewing && "file-browser__table--isPreviewing"
         )}
       >
-        {icon}
-        {node.title}
+        <TableText wrapModifier="truncate"> {node.title}</TableText>
       </div>
     );
     const name = {
       title: fileName,
     };
 
+    const size = {
+      title: fileSize,
+    };
+
     const download = {
-      title: node.children ? (
-        ""
-      ) : (
+      title: (
         <DownloadIcon
           className="download-file-icon"
           onClick={(e) => handleDownloadClick(e, node)}
@@ -170,11 +182,18 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
 
     return {
-      cells: [name, type, download],
+      cells: [iconRow, name, type, size, download],
     };
   };
 
-  const cols = ["Name", "Type", ""];
+  const cols = [
+    { title: "" },
+    { title: "Name", transforms: [cellWidth(40)], cellTransforms: [truncate] },
+    { title: "Type" },
+    { title: "Size" },
+    { title: "" },
+  ];
+
   if (!directory || directory.children.length === 0) {
     return <div>No Files in this directory.</div>;
   }
@@ -186,82 +205,87 @@ const FileBrowser = (props: FileBrowserProps) => {
     selectedFile.file &&
     getFileExtension(selectedFile.file.data.fname);
 
+  const previewPanel = (
+    <>
+      {renderHeaderPanel(
+        handleFileViewerToggle,
+        handleFileBrowserToggle,
+        expandDrawer,
+        fileType
+      )}
+
+      {selectedFile && selectedFile.file && (
+        <FileDetailView selectedFile={selectedFile.file} preview="small" />
+      )}
+    </>
+  );
+
   return (
     <Grid hasGutter className="file-browser">
-      <GridItem
-        xl2={4}
-        xl2RowSpan={12}
-        xl={4}
-        xlRowSpan={12}
-        lg={4}
-        lgRowSpan={12}
-        md={4}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__firstGrid"
-      >
-        <div className="file-browser__header">
-          <div className="file-browser__header--breadcrumbContainer">
-            <Breadcrumb>
-              {breadcrumb.map((value: string, index: number) => {
-                return <BreadcrumbItem key={index}>{value}</BreadcrumbItem>;
-              })}
-            </Breadcrumb>
-            <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
-          </div>
-
-          <div className="file-browser__header__info">
-            <span className="files-browser__header--fileCount">
-              {selectedFiles
-                ? `(${selectedFiles.length} files)`
-                : "Empty Directory"}
-            </span>
-            <Button
-              className="file-browser__header--downloadButton"
-              onClick={() => downloadAllClick()}
-              variant="secondary"
-            >
-              Download All
-            </Button>
-          </div>
-        </div>
-
-        <Table
-          className="file-browser__table"
-          aria-label="file-browser"
-          variant={TableVariant.compact}
-          cells={cols}
-          rows={rows}
+      <Drawer isExpanded={true} isInline>
+        <DrawerContent
+          panelContent={
+            <DrawerPanelContent defaultSize="60.5%" minSize="30%" isResizable>
+              {previewPanel}
+            </DrawerPanelContent>
+          }
         >
-          <TableHeader />
-          <TableBody onRowClick={handleFileClick} />
-        </Table>
-      </GridItem>
+          <DrawerContentBody>
+            <GridItem
+              xl2={4}
+              xl2RowSpan={12}
+              xl={4}
+              xlRowSpan={12}
+              lg={4}
+              lgRowSpan={12}
+              md={4}
+              mdRowSpan={12}
+              sm={12}
+              smRowSpan={12}
+              className="file-browser__firstGrid"
+            >
+              <div className="file-browser__header">
+                <div className="file-browser__header--breadcrumbContainer">
+                <Breadcrumb>
+                    {breadcrumb.map((value: string, index: number) => {
+                      return (
+                        <BreadcrumbItem key={index}>{value}</BreadcrumbItem>
+                      );
+                    })}
+                  </Breadcrumb>
+                  <Breadcrumb>{breadcrumbs.map(generateBreadcrumb)}</Breadcrumb>
+                </div>
 
-      <GridItem
-        xl2={8}
-        xl2RowSpan={12}
-        xl={8}
-        xlRowSpan={12}
-        lg={8}
-        lgRowSpan={12}
-        md={8}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__grid2"
-      >
-        {renderHeaderPanel(
-          handleFileViewerToggle,
-          handleFileBrowserToggle,
-          expandDrawer,
-          fileType
-        )}
-        {selectedFile && selectedFile.file && (
-          <FileDetailView selectedFile={selectedFile.file} preview="small" />
-        )}
-      </GridItem>
+                <div className="file-browser__header__info">
+                  <span className="files-browser__header--fileCount">
+                    {selectedFiles
+                      ? `(${selectedFiles.length} files)`
+                      : "Empty Directory"}
+                  </span>
+                  <Button
+                    className="file-browser__header--downloadButton"
+                    onClick={() => downloadAllClick()}
+                    variant="secondary"
+                  >
+                    Download All
+                  </Button>
+                </div>
+              </div>
+
+              <Table
+                className="file-browser__table"
+                aria-label="file-browser-table"
+                variant="compact"
+                cells={cols}
+                rows={rows}
+              >
+                <TableHeader />
+                <TableBody onRowClick={handleFileClick} />
+              </Table>
+            </GridItem>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
     </Grid>
   );
 };

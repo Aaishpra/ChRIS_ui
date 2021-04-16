@@ -18,22 +18,12 @@
   .ant-tree {
     background-color: inherit !important;
   }
-
-  &__sidebar {
-    width: 100%;
-  }
-
-  &__main {
-    width: 100%;
-  }
 }
 
 .file-browser {
   height: 100%;
-
   &__downloadButton {
     max-width: 50% !important;
-
     @include media-query(768px) {
       max-width: 80 !important;
     }
@@ -44,7 +34,10 @@
   }
 
   &__table {
+    padding-right: 0 !important;
     &--fileName {
+      display: flex;
+      flex-direction: row;
       border: 1px solid transparent;
       border-radius: 5px;
       outline: none;
@@ -52,6 +45,15 @@
       font-family: var(
         --pf-global--FontFamily--redhatfont--sans-serif
       ) !important;
+    }
+
+    tr > *:first-child {
+      padding: 0;
+      text-align: right;
+    }
+
+    .pf-m-truncate {
+      padding-left: 0 !important;
     }
 
     &--isPreviewing {
@@ -63,16 +65,11 @@
     }
   }
 
-  .small-preview {
-    @include section-three;
-  }
-
-  
-
   &__header {
     display: flex;
     flex-direction: column;
     gap: 0.25em;
+    margin-right: 0.25em;
 
     &--crumb {
       color: var(--pf-global--primary-color--100);
@@ -95,7 +92,8 @@
   }
 
   &__firstGrid {
-    overflow-y: scroll;
+    overflow-y: scroll !important;
+    height: 100% !important;
     border-right: 0.2px solid #f5f5f5;
     max-width: 100%;
     tbody tr {
@@ -112,17 +110,37 @@
     }
   }
 
-  &__grid2 {
-    overflow-y: scroll;
+  .header-panel__buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25em;
+    margin-right: 0.25em;
 
-    .header-panel__buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.25em;
+    button {
+      padding-top: 0;
+    }
+  }
 
-      button {
-        padding-top: 0;
-      }
+  .small-preview {
+    height: 90%;
+    img {
+      height: 100%;
+    }
+  }
+
+  .dcm-preview {
+    position: relative;
+    height: 100%;
+
+    #container {
+      bottom: 0;
+      height: 100%;
+      left: 0;
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
     }
   }
 }

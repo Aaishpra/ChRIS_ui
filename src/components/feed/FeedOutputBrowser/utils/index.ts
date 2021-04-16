@@ -3,13 +3,14 @@
  */
 import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
 import _ from "lodash";
-import {DataNode} from '../../../../store/explorer/types';
+import { DataNode } from "../../../../store/explorer/types";
 
 export function createTreeFromFiles(
   selected?: PluginInstance,
   files?: FeedFile[]
 ): DataNode[] | null {
   if (!files || !selected) return null;
+
   const filePaths = files.map((file) => {
     const filePath = file.data.fname.substring(
       file.data.fname.lastIndexOf(
@@ -17,9 +18,12 @@ export function createTreeFromFiles(
       ),
       file.data.fname.length
     );
+    //@ts-ignore
+    const fileSize = bytesToSize(file.data.fsize);
     return {
       file: file,
       filePath,
+      fileSize,
     };
   });
   let tree = null;
@@ -31,8 +35,13 @@ export function createTreeFromFiles(
   return tree;
 }
 
-
-
+export function bytesToSize(bytes: number) {
+  const sizes: string[] = ["B", "KB", "MB", "GB", "TB"];
+  if (bytes === 0) return "N/A";
+  const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
+  if (i === 0) return `${bytes} ${sizes[i]}`;
+  return `${(bytes / Math.pow(1024, i)).toFixed(0)} ${sizes[i]}`;
+}
 
 // Format plugin name to "Name_vVersion_ID"
 export function getPluginName(plugin: PluginInstance) {
@@ -46,7 +55,7 @@ export function getPluginDisplayName(plugin: PluginInstance) {
 }
 
 const buildTree = (
-  files: { file: FeedFile; filePath: string }[],
+  files: { file: FeedFile; filePath: string; fileSize: string }[],
   cb: (tree: any[]) => void
 ) => {
   const tree: any[] = [];
@@ -54,7 +63,7 @@ const buildTree = (
     const pathParts = fileObj.filePath.split("/");
     pathParts.shift();
     let currentLevel = tree;
-    _.each(pathParts, function (part, index) {
+    _.each(pathParts, function (part) {
       const existingPath = _.find(currentLevel, {
         title: part,
       });
@@ -62,9 +71,10 @@ const buildTree = (
         currentLevel = existingPath.children;
       } else {
         const newPart = {
-          key:  `${part}_${index}`,
+          key: `${part}_${fileObj.file.data.id}`,
           title: part,
           file: fileObj.file,
+          fileSize: fileObj.fileSize,
           children: [],
         };
         currentLevel.push(newPart);

@@ -17,6 +17,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { pf4UtilityStyles } from "../../lib/pf4-styleguides";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -24,30 +25,31 @@ interface IPropsFromDispatch {
 }
 type AllProps = IUserState & IUiState & IPropsFromDispatch;
 
-class ToolbarComponent extends React.Component<AllProps> {
-  constructor(props: AllProps) {
-    super(props);
-    this.onLogout = this.onLogout.bind(this);
-  }
-  onDropdownToggle = (isOpened: boolean) => {
-    const { onDropdownSelect } = this.props;
+const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
+  const { setUserLogout }: IPropsFromDispatch = props 
+  const { username, isDropdownOpen }: AllProps = props
+  const onDropdownToggle = (isOpened: boolean) => {
+    const { onDropdownSelect } = props;
     onDropdownSelect(isOpened);
   };
 
-  onDropdownSelect = () => {
-    const { onDropdownSelect, isDropdownOpen } = this.props;
+  /*
+
+  const onDropdownSelect = () => {
+    const { onDropdownSelect, isDropdownOpen } = props;
     !!isDropdownOpen && onDropdownSelect(!isDropdownOpen); // NOTES: Toggle menu ****** to be determined, depending on actions (duplicate call for right now - stub)
   };
 
+  */
+
   // Description: Logout user
-  onLogout() {
-    this.props.setUserLogout();
+  const onLogout = () => {
+    ChrisAPIClient.setIsTokenAuthorized(false);
+    setUserLogout();
   }
-  render() {
-    const { isDropdownOpen, username } = this.props;
 
     const userDropdownItems = [
-      <DropdownItem key="dd5" component="a" onClick={this.onLogout}>
+      <DropdownItem key="dd5" component="a" onClick={onLogout}>
         Sign out
       </DropdownItem>,
     ];
@@ -64,7 +66,7 @@ class ToolbarComponent extends React.Component<AllProps> {
               position="right"
               isOpen={isDropdownOpen}
               toggle={
-                <DropdownToggle onToggle={this.onDropdownToggle}>
+                <DropdownToggle onToggle={onDropdownToggle}>
                   {username}
                 </DropdownToggle>
               }
@@ -75,7 +77,6 @@ class ToolbarComponent extends React.Component<AllProps> {
       </Toolbar>
     );
   }
-}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),

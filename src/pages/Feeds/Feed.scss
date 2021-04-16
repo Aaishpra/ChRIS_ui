@@ -35,35 +35,25 @@
     margin-bottom: 1rem;
   }
 
+  thead {
+    background-color: var(--pf-global--palette--black-100);
+  }
+
+  &__count {
+    margin-left:1.25em;
+    display: block;
+  }
+
+  .error {
+    background-color:red;
+  }
+
   &__split {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  &__status {
-    span {
-      margin-left:0.25em;
-    }
-  }
-
-  .completed {
-    svg {
-      color:forestgreen;
-    }
-  }
-
-  .running {
-    svg {
-      color:gray;
-    }
-  }
-
-  .error {
-    svg {
-      color:#c9190b;
-    }
-  }
 
   &__name {
     a {
@@ -73,13 +63,7 @@
     outline: none;
   }
 
-  &__last-commit {
-    display: block;
-    &::first-letter {
-      text-transform: uppercase;
-    }
-  }
-
+ 
   td:last-child {
     padding-right: 0;
     padding-left: 0;
@@ -99,7 +83,7 @@
   }
 
   @include media-query(1200px) {
-    min-height: 5vh;
+    min-height:5vh; 
   }
 
   @include media-query(1920px) {
@@ -108,22 +92,35 @@
 }
 
 .section-two {
-  height: 44vh;
+  height: 45vh;
 
   @include media-query(992px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
   @include media-query(768px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
 
   @include media-query(1200px) {
-    min-height: 44vh;
+    min-height: 45vh;
   }
 }
 
 .section-three {
-  @include section-three;
+  height: 45vh;
+ 
+  @include media-query(768px){
+    min-height:45vh  
+  }
+ 
+   @include media-query(992px){
+    min-height:45vh;
+  }
+   
+ @include media-query(1200px){
+    min-height:45vh;
+  }
+  
   background: #d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0.5rem !important;
@@ -153,7 +150,9 @@
 }
 
 .node-block {
+  overflow: visible;
   height: 100%;
+  padding:0.5em;
 }
 
 .pf-c-drawer__content {
